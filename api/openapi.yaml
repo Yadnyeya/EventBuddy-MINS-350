@@ -1,0 +1,1174 @@
+openapi: 3.0.3
+info:
+  title: EventBuddy API
+  description: |
+    EventBuddy API for student event discovery and attendance tracking.
+    This API provides endpoints for student profiles, interests, events, and attendance management.
+    Based on Specification 2 schema.
+  version: 2.0.0
+  contact:
+    name: EventBuddy Team
+    email: support@eventbuddy.com
+
+servers:
+  - url: http://localhost:3001
+    description: Local development server
+  - url: https://api.eventbuddy.com
+    description: Production server
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Supabase JWT token from authentication
+
+  schemas:
+    Student:
+      type: object
+      properties:
+        student_id:
+          type: string
+          format: uuid
+          description: Unique student identifier
+        profile_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: Reference to auth.users profile
+        email:
+          type: string
+          format: email
+          description: Student email address
+        is_verified:
+          type: boolean
+          description: Email verification status
+        year:
+          type: string
+          enum: [Freshman, Sophomore, Junior, Senior, Graduate]
+          description: Academic year
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Interest:
+      type: object
+      properties:
+        interest_id:
+          type: string
+          format: uuid
+          description: Unique interest identifier
+        student_id:
+          type: string
+          format: uuid
+          description: Student who has this interest
+        interest_name:
+          type: string
+          maxLength: 100
+          description: Name of the interest
+        created_at:
+          type: string
+          format: date-time
+
+    Event:
+      type: object
+      properties:
+        event_id:
+          type: string
+          format: uuid
+          description: Unique event identifier
+        student_id:
+          type: string
+          format: uuid
+          description: Student who created the event (host)
+        title:
+          type: string
+          maxLength: 255
+          description: Event title
+        description:
+          type: string
+          description: Detailed event description
+        location:
+          type: string
+          description: Event location/venue
+        date_and_time:
+          type: string
+          format: date-time
+          description: Event date and time
+        event_type:
+          type: string
+          enum: [Event, Club Meeting, Fair]
+          description: Type of event
+        attendance:
+          type: integer
+          default: 0
+          description: Current number of attendees
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        host:
+          type: object
+          description: Event host details
+          properties:
+            student_id:
+              type: string
+              format: uuid
+            email:
+              type: string
+            year:
+              type: string
+
+    Attend:
+      type: object
+      properties:
+        attend_id:
+          type: string
+          format: uuid
+          description: Unique attendance record identifier
+        student_id:
+          type: string
+          format: uuid
+          description: Student who attended
+        event_id:
+          type: string
+          format: uuid
+          description: Event attended
+        shared_experience:
+          type: string
+          nullable: true
+          description: Student's experience or review
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+          nullable: true
+          description: Event rating (1-5 stars)
+        names_of_students:
+          type: array
+          items:
+            type: string
+          nullable: true
+          description: Names of students they attended with
+        count_attendees:
+          type: integer
+          description: Snapshot of attendance count at check-in
+        timestamp_start:
+          type: string
+          format: date-time
+          description: Check-in timestamp
+        timestamp_end:
+          type: string
+          format: date-time
+          nullable: true
+          description: Check-out timestamp
+        created_at:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        timestamp:
+          type: string
+          format: date-time
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Check if the API server is running
+      tags:
+        - System
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  timestamp:
+                    type: string
+                    format: date-time
+                  service:
+                    type: string
+                    example: EventBuddy API
+                  version:
+                    type: string
+                    example: 1.0.0
+
+  /api/students:
+    get:
+      summary: Get all verified students
+      description: Retrieve a list of all verified students
+      tags:
+        - Students
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of results
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          description: Number of results to skip
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: List of students
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  students:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Student'
+                  total:
+                    type: integer
+                    nullable: true
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/students/search:
+    get:
+      summary: Search students by interest
+      description: Find students with a specific interest
+      tags:
+        - Students
+      parameters:
+        - name: interest
+          in: query
+          required: true
+          description: Interest name to search for (also accepts interest_name)
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of students with matching interests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    student_id:
+                      type: string
+                      format: uuid
+                    interest_name:
+                      type: string
+                    student:
+                      $ref: '#/components/schemas/Student'
+        '400':
+          description: Missing required parameter
+
+  /api/students/{id}:
+    get:
+      summary: Get student by ID
+      description: Retrieve a specific student's profile with their interests
+      tags:
+        - Students
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Student profile with interests
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Student'
+                  - type: object
+                    properties:
+                      interests:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Interest'
+        '404':
+          description: Student not found
+
+  /api/students/me/profile:
+    get:
+      summary: Get my profile
+      description: Get the authenticated student's profile
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Student profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Profile not found
+
+    post:
+      summary: Create or update my profile
+      description: Upsert the authenticated student's profile
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - year
+              properties:
+                email:
+                  type: string
+                  format: email
+                year:
+                  type: string
+                  enum: [Freshman, Sophomore, Junior, Senior, Graduate]
+                is_verified:
+                  type: boolean
+            example:
+              email: "student@university.edu"
+              year: "Junior"
+              is_verified: true
+      responses:
+        '200':
+          description: Profile created/updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '401':
+          description: Unauthorized
+
+    put:
+      summary: Update my profile
+      description: Update specific fields of my profile
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                year:
+                  type: string
+                  enum: [Freshman, Sophomore, Junior, Senior, Graduate]
+                is_verified:
+                  type: boolean
+      responses:
+        '200':
+          description: Profile updated
+        '401':
+          description: Unauthorized
+        '404':
+          description: Profile not found
+
+    delete:
+      summary: Delete my profile
+      description: Delete the authenticated student's profile
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Profile deleted
+        '401':
+          description: Unauthorized
+
+  /api/students/me/interests:
+    post:
+      summary: Add an interest
+      description: Add a new interest to my profile
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - interest_name
+              properties:
+                interest_name:
+                  type: string
+                  maxLength: 100
+            example:
+              interest_name: "Basketball"
+      responses:
+        '201':
+          description: Interest added
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Interest'
+        '400':
+          description: Validation error or duplicate interest
+        '401':
+          description: Unauthorized
+
+  /api/students/me/interests/{interest_id}:
+    delete:
+      summary: Remove an interest
+      description: Remove an interest from my profile
+      tags:
+        - Students
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: interest_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Interest removed
+        '401':
+          description: Unauthorized
+        '404':
+          description: Interest not found
+
+  /api/events:
+    get:
+      summary: Get all events
+      description: Retrieve a list of all events with optional filters
+      tags:
+        - Events
+      parameters:
+        - name: event_type
+          in: query
+          description: Filter by event type
+          schema:
+            type: string
+            enum: [Event, Club Meeting, Fair]
+        - name: limit
+          in: query
+          description: Maximum number of results
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - name: offset
+          in: query
+          description: Number of results to skip
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Event'
+                  total:
+                    type: integer
+                    nullable: true
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+              example:
+                events:
+                  - event_id: "55555555-5555-5555-5555-555555555555"
+                    student_id: "11111111-1111-1111-1111-111111111111"
+                    title: "Study Group - Computer Science"
+                    description: "Weekly study session for CS majors"
+                    location: "Library Room 204"
+                    date_and_time: "2025-11-15T18:00:00Z"
+                    event_type: "Club Meeting"
+                    attendance: 0
+                    host:
+                      student_id: "11111111-1111-1111-1111-111111111111"
+                      email: "john.doe@university.edu"
+                      year: "Junior"
+                total: null
+                limit: 20
+                offset: 0
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      summary: Create a new event
+      description: Create a new event (requires authentication)
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - event_type
+                - date_and_time
+              properties:
+                title:
+                  type: string
+                  maxLength: 255
+                description:
+                  type: string
+                event_type:
+                  type: string
+                  enum: [Event, Club Meeting, Fair]
+                location:
+                  type: string
+                date_and_time:
+                  type: string
+                  format: date-time
+            example:
+              title: "Study Group - Data Structures"
+              description: "Collaborative study session for CS 201"
+              event_type: "Club Meeting"
+              location: "Library Study Room B"
+              date_and_time: "2025-11-20T14:00:00Z"
+      responses:
+        '201':
+          description: Event created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '401':
+          description: Unauthorized - authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '400':
+          description: Bad request - validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/events/my/created:
+    get:
+      summary: Get my created events
+      description: Get all events created by the authenticated student
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of my events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '401':
+          description: Unauthorized
+
+  /api/events/{id}:
+    get:
+      summary: Get event by ID
+      description: Retrieve details of a specific event with host information
+      tags:
+        - Events
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Event ID
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Event details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+              example:
+                event_id: "55555555-5555-5555-5555-555555555555"
+                student_id: "11111111-1111-1111-1111-111111111111"
+                title: "Study Group - Computer Science"
+                description: "Weekly study session for CS majors"
+                location: "Library Room 204"
+                date_and_time: "2025-11-15T18:00:00Z"
+                event_type: "Club Meeting"
+                attendance: 5
+                host:
+                  student_id: "11111111-1111-1111-1111-111111111111"
+                  email: "john.doe@university.edu"
+                  year: "Junior"
+        '404':
+          description: Event not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      summary: Update event
+      description: Update an existing event (host only)
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  maxLength: 255
+                description:
+                  type: string
+                location:
+                  type: string
+                date_and_time:
+                  type: string
+                  format: date-time
+                event_type:
+                  type: string
+                  enum: [Event, Club Meeting, Fair]
+      responses:
+        '200':
+          description: Event updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - not event host
+        '404':
+          description: Event not found
+
+    delete:
+      summary: Delete event
+      description: Delete an event (host only)
+      tags:
+        - Events
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Event deleted successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - not event host
+        '404':
+          description: Event not found
+
+  /api/attend/checkin:
+    post:
+      summary: Check in to an event
+      description: Create an attendance record for an event
+      tags:
+        - Attendance
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - event_id
+              properties:
+                event_id:
+                  type: string
+                  format: uuid
+                names_of_students:
+                  type: array
+                  items:
+                    type: string
+                  description: Names of other students attending with you
+            example:
+              event_id: "55555555-5555-5555-5555-555555555555"
+              names_of_students: ["Alice", "Bob"]
+      responses:
+        '201':
+          description: Checked in successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attend'
+        '400':
+          description: Already checked in or invalid event
+        '401':
+          description: Unauthorized
+
+  /api/attend/checkout:
+    post:
+      summary: Check out from an event
+      description: Set the check-out timestamp for an attendance record
+      tags:
+        - Attendance
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - attend_id
+              properties:
+                attend_id:
+                  type: string
+                  format: uuid
+            example:
+              attend_id: "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+      responses:
+        '200':
+          description: Checked out successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attend'
+        '400':
+          description: Already checked out
+        '401':
+          description: Unauthorized
+        '404':
+          description: Attendance record not found
+
+  /api/attend/my:
+    get:
+      summary: Get my attendance history
+      description: Get all events I've attended
+      tags:
+        - Attendance
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of attended events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/Attend'
+                    - type: object
+                      properties:
+                        event:
+                          $ref: '#/components/schemas/Event'
+        '401':
+          description: Unauthorized
+
+  /api/attend/{attend_id}/rate:
+    put:
+      summary: Rate an event
+      description: Add or update rating and review for an attended event
+      tags:
+        - Attendance
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: attend_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rating:
+                  type: integer
+                  minimum: 1
+                  maximum: 5
+                shared_experience:
+                  type: string
+            example:
+              rating: 5
+              shared_experience: "Great study session! Very productive."
+      responses:
+        '200':
+          description: Rating submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Attend'
+        '400':
+          description: Invalid rating
+        '401':
+          description: Unauthorized
+        '404':
+          description: Attendance record not found
+
+  /api/attend/event/{event_id}:
+    get:
+      summary: Get event attendance
+      description: Get attendance details for an event (full details for host, count only for others)
+      tags:
+        - Attendance
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Attendance information
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - type: array
+                    items:
+                      $ref: '#/components/schemas/Attend'
+                  - type: object
+                    properties:
+                      count:
+                        type: integer
+        '404':
+          description: Event not found
+
+  /api/attend/event/{event_id}/ratings:
+    get:
+      summary: Get event ratings
+      description: Get all ratings and reviews for an event (public)
+      tags:
+        - Attendance
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Event ratings
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ratings:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        rating:
+                          type: integer
+                        shared_experience:
+                          type: string
+                        timestamp_start:
+                          type: string
+                          format: date-time
+                        student_email:
+                          type: string
+                  average:
+                    type: number
+                    format: float
+                  count:
+                    type: integer
+        '404':
+          description: Event not found
+
+tags:
+  - name: System
+    description: System health and monitoring
+  - name: Students
+    description: Student profile and interest management
+  - name: Events
+    description: Event management operations
+  - name: Attendance
+    description: Event attendance and ratings
+
+
+    get:
+      summary: Search profiles
+      description: Search and browse user profiles
+      tags:
+        - Profiles
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: major
+          in: query
+          schema:
+            type: string
+        - name: personality
+          in: query
+          schema:
+            type: string
+            enum: [introvert, extrovert, ambivert]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: List of profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Profile'
+
+    post:
+      summary: Create profile
+      description: Create a new user profile (first-time setup)
+      tags:
+        - Profiles
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - full_name
+              properties:
+                username:
+                  type: string
+                  maxLength: 50
+                full_name:
+                  type: string
+                  maxLength: 100
+                bio:
+                  type: string
+                  maxLength: 500
+                major:
+                  type: string
+                personality_type:
+                  type: string
+                  enum: [introvert, extrovert, ambivert]
+            example:
+              username: "sarah_chen"
+              full_name: "Sarah Chen"
+              bio: "Business major interested in entrepreneurship"
+              major: "Business Administration"
+              personality_type: "extrovert"
+      responses:
+        '201':
+          description: Profile created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+        '401':
+          description: Unauthorized
+        '400':
+          description: Validation error
+
+  /api/connections:
+    get:
+      summary: Get user's connections
+      description: Get all accepted connections for the current user
+      tags:
+        - Connections
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of connections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Connection'
+        '401':
+          description: Unauthorized
+
+    post:
+      summary: Send connection request
+      description: Send a buddy connection request to another user
+      tags:
+        - Connections
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - receiver_id
+              properties:
+                receiver_id:
+                  type: string
+                  format: uuid
+                  description: ID of user to connect with
+            example:
+              receiver_id: "770e8400-e29b-41d4-a716-446655440002"
+      responses:
+        '201':
+          description: Connection request sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Connection'
+        '401':
+          description: Unauthorized
+        '400':
+          description: Bad request
+
+  /api/messages:
+    get:
+      summary: Get conversations
+      description: Get all message conversations for the current user
+      tags:
+        - Messages
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    partner:
+                      $ref: '#/components/schemas/Profile'
+                    lastMessage:
+                      $ref: '#/components/schemas/Message'
+                    unreadCount:
+                      type: integer
+        '401':
+          description: Unauthorized
+
+    post:
+      summary: Send message
+      description: Send a message to another user
+      tags:
+        - Messages
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - receiver_id
+                - content
+              properties:
+                receiver_id:
+                  type: string
+                  format: uuid
+                content:
+                  type: string
+                  maxLength: 1000
+            example:
+              receiver_id: "770e8400-e29b-41d4-a716-446655440002"
+              content: "Hey! Want to study together for the exam?"
+      responses:
+        '201':
+          description: Message sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
