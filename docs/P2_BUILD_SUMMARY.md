@@ -8,9 +8,9 @@
 ### 1. Database Layer (PostgreSQL via Supabase)
 
 **Files Created:**
-- `db/01_schema.sql` (11 tables, 200+ lines)
-- `db/02_seed.sql` (Sample data template)
-- `db/03_policies.sql` (Row Level Security policies)
+- `supabase/01_schema.sql` (11 tables, 200+ lines)
+- `supabase/02_seed.sql` (Sample data template)
+- `supabase/03_policies.sql` (Row Level Security policies)
 
 **Tables Created:**
 ```
@@ -74,11 +74,11 @@
 ### 4. Frontend Services Layer
 
 **Files Created:**
-- `src/services/supabase.js` - Supabase client & auth helpers
-- `src/services/eventsApi.js` - Events API wrapper (10 functions)
-- `src/services/profilesApi.js` - Profiles API wrapper (10 functions)
-- `src/services/connectionsApi.js` - Connections API wrapper (9 functions)
-- `src/services/messagesApi.js` - Messages API wrapper (8 functions)
+- `client/src/services/supabase.js` - Supabase client & auth helpers
+- `client/src/services/eventsApi.js` - Events API wrapper (10 functions)
+- `client/src/services/profilesApi.js` - Profiles API wrapper (10 functions)
+- `client/src/services/connectionsApi.js` - Connections API wrapper (9 functions)
+- `client/src/services/messagesApi.js` - Messages API wrapper (8 functions)
 
 **Features:**
 - JWT authentication helpers
@@ -89,7 +89,7 @@
 ### 5. Utilities & Helpers
 
 **Files Created:**
-- `src/utils/helpers.js` - 25+ utility functions
+- `client/src/utils/helpers.js` - 25+ utility functions
 
 **Utilities Include:**
 - Date/time formatting
@@ -277,9 +277,9 @@ VITE_APP_URL=http://localhost:5173
 
 ### Supabase Setup Required
 1. Create Supabase project
-2. Run `db/01_schema.sql` in SQL Editor
-3. Run `db/02_seed.sql` (optional)
-4. Run `db/03_policies.sql`
+2. Run `supabase/01_schema.sql` in SQL Editor
+3. Run `supabase/02_seed.sql` (optional)
+4. Run `supabase/03_policies.sql`
 5. Copy API keys to `.env`
 
 ### Dependencies Added

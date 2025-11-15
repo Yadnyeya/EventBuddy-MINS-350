@@ -13,16 +13,20 @@ const __dirname = path.dirname(__filename);
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY; // Service key for admin operations
+const supabaseSecretKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_KEY; // Secret key for admin operations
 
-if (!supabaseUrl || !supabaseServiceKey) {
+if (!supabaseUrl || !supabaseSecretKey) {
   console.error('❌ Missing Supabase credentials in .env file');
-  console.error('Required: VITE_SUPABASE_URL and SUPABASE_SERVICE_KEY');
+  console.error('Required: VITE_SUPABASE_URL and SUPABASE_SECRET_KEY');
   process.exit(1);
 }
 
+if (!process.env.SUPABASE_SECRET_KEY) {
+  console.warn('⚠️ Using legacy SUPABASE_SERVICE_KEY; migrate to SUPABASE_SECRET_KEY.');
+}
+
 // Create Supabase admin client (bypasses RLS for admin operations)
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+export const supabaseAdmin = createClient(supabaseUrl, supabaseSecretKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false
@@ -31,13 +35,17 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
 
 // Create Supabase client with user context (respects RLS)
 export const createUserSupabaseClient = (accessToken) => {
-  return createClient(supabaseUrl, process.env.VITE_SUPABASE_ANON_KEY, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
+  return createClient(
+    supabaseUrl,
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_ANON_KEY,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
       }
     }
-  });
+  );
 };
 
 // Middleware to verify user authentication

@@ -7,7 +7,7 @@ All frontend pages have been updated to work with the new backend API and databa
 
 ### 1. Authentication Pages ✅
 
-#### LoginPage (`src/pages/LoginPage.jsx`)
+#### LoginPage (`client/src/pages/LoginPage.jsx`)
 - Email/password authentication using Supabase
 - Form validation with error messages
 - Demo credentials display for testing
@@ -15,14 +15,14 @@ All frontend pages have been updated to work with the new backend API and databa
 - Automatic redirect to home page on success
 - Gradient background matching brand colors
 
-#### SignupPage (`src/pages/SignupPage.jsx`)
+#### SignupPage (`client/src/pages/SignupPage.jsx`)
 - University email validation (.edu required)
 - Password confirmation with 6+ character requirement
 - Success screen with countdown redirect to profile setup
 - Terms of Service and Privacy Policy links
 - Error handling for duplicate emails
 
-#### ProfileSetupPage (`src/pages/ProfileSetupPage.jsx`)
+#### ProfileSetupPage (`client/src/pages/ProfileSetupPage.jsx`)
 - 3-step wizard for first-time profile configuration
 - **Step 1**: Year selection (Freshman/Sophomore/Junior/Senior/Graduate)
 - **Step 2**: Interest selection with 50+ predefined options
@@ -35,7 +35,7 @@ All frontend pages have been updated to work with the new backend API and databa
 
 ### 2. Main Application Pages ✅
 
-#### HomePage (`src/pages/HomePage.jsx`)
+#### HomePage (`client/src/pages/HomePage.jsx`)
 - Personalized welcome with user email
 - **Upcoming Events Section**: Shows 3 next events with quick view
 - **Recent Attendance**: Displays recent check-ins with ratings
@@ -45,7 +45,7 @@ All frontend pages have been updated to work with the new backend API and databa
 - Mock data fallback for demo purposes
 - API calls: `getCurrentUser()`, `getAllEvents()`, `getMyAttendance()`
 
-#### EventsPage (`src/pages/EventsPage.jsx`)
+#### EventsPage (`client/src/pages/EventsPage.jsx`)
 - Event type filter dropdown (Event/Club Meeting/Fair)
 - Clear filters functionality
 - Event cards showing:
@@ -58,7 +58,7 @@ All frontend pages have been updated to work with the new backend API and databa
 - Mock data with 3 sample events (Study Group, Campus Fair, Photography Walk)
 - API call: `getAllEvents({ event_type: eventType })`
 
-#### EventDetailPage (`src/pages/EventDetailPage.jsx`)
+#### EventDetailPage (`client/src/pages/EventDetailPage.jsx`)
 - Event type badge and average rating display
 - Detailed event information:
   - Title, description
@@ -78,7 +78,7 @@ All frontend pages have been updated to work with the new backend API and databa
 - Mock data fallback
 - API calls: `getEventById()`, `checkInToEvent()`, `getEventRatings()`
 
-#### ProfilePage (`src/pages/ProfilePage.jsx`)
+#### ProfilePage (`client/src/pages/ProfilePage.jsx`)
 - **Basic Information**:
   - Email (display only)
   - Year (editable dropdown)
@@ -95,7 +95,7 @@ All frontend pages have been updated to work with the new backend API and databa
 - Mock data with sample interests and attendance
 - API calls: `getMyProfile()`, `updateMyProfile()`, `getStudentInterests()`, `addInterest()`, `deleteInterest()`, `getMyAttendance()`
 
-#### ShareExperiencePage (`src/pages/ShareExperiencePage.jsx`)
+#### ShareExperiencePage (`client/src/pages/ShareExperiencePage.jsx`)
 - **Rate Your Event Experience**:
   - Dropdown to select attended (unrated) event
   - 5-star rating system with hover effects
@@ -110,14 +110,14 @@ All frontend pages have been updated to work with the new backend API and databa
 
 ### 3. Navigation & Routing ✅
 
-#### Navigation Component (`src/components/Navigation.jsx`)
+#### Navigation Component (`client/src/components/Navigation.jsx`)
 - Brand logo linking to home
 - Active link highlighting
 - Links to: Home, Events, Profile, Share
 - Sign Out button with red styling
 - Consistent across all authenticated pages
 
-#### App Router (`src/App.jsx`)
+#### App Router (`client/src/App.jsx`)
 - React Router setup with BrowserRouter
 - **Public Routes**:
   - `/login` - LoginPage
@@ -217,29 +217,29 @@ All pages now use the new database schema:
 ## File Changes Summary
 
 ### Created Files:
-- `src/pages/LoginPage.jsx`
-- `src/pages/SignupPage.jsx`
-- `src/pages/ProfileSetupPage.jsx`
-- `src/services/studentsApi.js`
-- `src/services/attendApi.js`
-- `src/components/Navigation.jsx`
+- `client/src/pages/LoginPage.jsx`
+- `client/src/pages/SignupPage.jsx`
+- `client/src/pages/ProfileSetupPage.jsx`
+- `client/src/services/studentsApi.js`
+- `client/src/services/attendApi.js`
+- `client/src/components/Navigation.jsx`
 
 ### Updated Files:
-- `src/App.jsx` - Complete router setup
-- `src/pages/HomePage.jsx` - API integration, mock data
-- `src/pages/EventsPage.jsx` - New filters, event_type, mock data
-- `src/pages/EventDetailPage.jsx` - Check-in functionality, ratings display
-- `src/pages/ProfilePage.jsx` - Interests, attendance history
-- `src/pages/ShareExperiencePage.jsx` - Rate attended events
-- `src/services/eventsApi.js` - Updated for new schema
+- `client/src/App.jsx` - Complete router setup
+- `client/src/pages/HomePage.jsx` - API integration, mock data
+- `client/src/pages/EventsPage.jsx` - New filters, event_type, mock data
+- `client/src/pages/EventDetailPage.jsx` - Check-in functionality, ratings display
+- `client/src/pages/ProfilePage.jsx` - Interests, attendance history
+- `client/src/pages/ShareExperiencePage.jsx` - Rate attended events
+- `client/src/services/eventsApi.js` - Updated for new schema
 
 ### Deleted Files:
-- `src/pages/ConnectPage.jsx`
-- `src/pages/MatchesPage.jsx`
-- `src/pages/MessagesPage.jsx`
-- `src/services/connectionsApi.js`
-- `src/services/messagesApi.js`
-- `src/services/profilesApi.js`
+- `client/src/pages/ConnectPage.jsx`
+- `client/src/pages/MatchesPage.jsx`
+- `client/src/pages/MessagesPage.jsx`
+- `client/src/services/connectionsApi.js`
+- `client/src/services/messagesApi.js`
+- `client/src/services/profilesApi.js`
 
 ## Technical Stack
 

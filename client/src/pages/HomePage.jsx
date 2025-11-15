@@ -115,12 +115,30 @@ function HomePage() {
                   <span aria-hidden="true">→</span>
                 </div>
               </Link>
+              <Link to="/attend" className="card">
+                <span className="card__eyebrow">Crew up</span>
+                <h3 className="card__title">Attend Together</h3>
+                <p className="card__body">Save events, lock logistics, and rally friends before doors open. Your squad planner lives here.</p>
+                <div className="card__footer">
+                  <span>Plan the outing</span>
+                  <span aria-hidden="true">→</span>
+                </div>
+              </Link>
               <Link to="/profile" className="card">
                 <span className="card__eyebrow">Identity</span>
                 <h3 className="card__title">Craft Your Profile</h3>
                 <p className="card__body">Fine-tune interests, expand your circles, and showcase your campus journey.</p>
                 <div className="card__footer">
                   <span>Update details</span>
+                  <span aria-hidden="true">→</span>
+                </div>
+              </Link>
+              <Link to="/connect" className="card">
+                <span className="card__eyebrow">Buddy radar</span>
+                <h3 className="card__title">Connect with Students</h3>
+                <p className="card__body">Review matches, respond to invites, and keep DMs synced as you build your network.</p>
+                <div className="card__footer">
+                  <span>Open message hub</span>
                   <span aria-hidden="true">→</span>
                 </div>
               </Link>

@@ -10,9 +10,9 @@
 ### Step 1 — Database (Supabase) ✅ DONE
 - [x] Supabase project created ("Yadnyeya's Project")
 - [x] Service role key and anon key stored in `.env`
-- [x] `db/00_spec_schema.sql` created and executed (4 tables: student, interest, events, attend)
-- [x] `db/00_spec_seed.sql` created and executed (4 students, 12 interests, 5 events, 3 attendance records)
-- [x] `db/00_spec_policies.sql` created and executed (RLS policies + helper functions)
+- [x] `supabase/00_spec_schema.sql` created and executed (4 tables: student, interest, events, attend)
+- [x] `supabase/00_spec_seed.sql` created and executed (4 students, 12 interests, 5 events, 3 attendance records)
+- [x] `supabase/00_spec_policies.sql` created and executed (RLS policies + helper functions)
 - [x] Tables verified in Supabase Table Editor
 
 **Evidence:** Screenshot shows 4 students in the `student` table ✅
@@ -179,7 +179,7 @@
 **Estimated Time:** 2 hours
 
 #### Task 2.3: Update App.jsx with Routing
-**File:** `src/App.jsx`
+**File:** `client/src/App.jsx`
 - [ ] Import React Router components
 - [ ] Set up routes for all pages:
   ```jsx
@@ -225,25 +225,25 @@
 ### PRIORITY 3: Update Frontend Services (1 hour)
 
 #### Task 3.1: Update API Service Files
-**File:** `src/services/eventsApi.js`
+**File:** `client/src/services/eventsApi.js`
 - [ ] Update endpoints to match new API routes
 - [ ] Update field names in requests/responses
 - [ ] Update event creation to use `date_and_time` field
 
-**File:** `src/services/profilesApi.js` → **RENAME to studentsApi.js**
+**File:** `client/src/services/profilesApi.js` → **RENAME to studentsApi.js**
 - [ ] Rename to `studentsApi.js`
 - [ ] Update endpoints (`/api/profiles` → `/api/students`)
 - [ ] Update field names (profile_id → student_id)
 
-**File to CREATE:** `src/services/attendApi.js`
+**File to CREATE:** `client/src/services/attendApi.js`
 - [ ] `checkInToEvent(eventId)` - Check into event
 - [ ] `getMyAttendance()` - Get attendance history
 - [ ] `rateEvent(attendId, rating, experience)` - Submit rating
 - [ ] `getEventAttendance(eventId)` - Get event attendance list
 
 **Files to DELETE:**
-- [ ] `src/services/connectionsApi.js`
-- [ ] `src/services/messagesApi.js`
+- [ ] `client/src/services/connectionsApi.js`
+- [ ] `client/src/services/messagesApi.js`
 
 **Estimated Time:** 1 hour
 
@@ -353,8 +353,8 @@ Once API is updated, replace mock data with API calls:
 
 ### Step 1 — Database ✅
 - [x] Instructor added as Supabase Admin
-- [x] `db/00_spec_schema.sql` runs cleanly
-- [x] `db/00_spec_seed.sql` runs cleanly
+- [x] `supabase/00_spec_schema.sql` runs cleanly
+- [x] `supabase/00_spec_seed.sql` runs cleanly
 - [x] Tables verified in Supabase
 
 ### Step 2 — Client (Frontend)

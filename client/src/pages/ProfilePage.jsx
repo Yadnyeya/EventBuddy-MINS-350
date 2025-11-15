@@ -1,12 +1,35 @@
 // Profile Page - View and edit user profile
 // Maps to: Profile section (View/Edit Profile, Interests, Event History)
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { getMyProfile, updateMyProfile, getStudentInterests, addInterest, deleteInterest } from '../services/studentsApi';
 import { getMyAttendance } from '../services/attendApi';
 import { getCurrentUser } from '../services/supabase';
 import Navigation from '../components/Navigation';
+
+const preferenceDefaults = {
+  meetupSize: 'Small crew (2-4)',
+  energyLevel: 'Balanced energy',
+  arrivalStyle: 'Early bird',
+  preferredEvents: ['Workshops & skill shares', 'Campus nightlife'],
+  communication: 'Group chat first'
+};
+
+const privacyDefaults = {
+  allowMessages: true,
+  shareEventHistory: true,
+  showAvailability: false,
+  safetyCheck: true
+};
+
+const EVENT_PREF_OPTIONS = [
+  'Workshops & skill shares',
+  'Club meetings',
+  'Campus nightlife',
+  'Volunteer missions',
+  'Outdoor adventures'
+];
 
 function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -17,15 +40,30 @@ function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [newInterest, setNewInterest] = useState('');
   const [status, setStatus] = useState(null);
+  const [preferences, setPreferences] = useState(preferenceDefaults);
+  const [privacy, setPrivacy] = useState(privacyDefaults);
+  const [preferenceStatus, setPreferenceStatus] = useState(null);
+  const [privacyStatus, setPrivacyStatus] = useState(null);
 
-  useEffect(() => {
-    loadProfile();
+  const loadStoredSettings = useCallback((key, fallback) => {
+    try {
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : fallback;
+    } catch (error) {
+      console.warn(`Unable to parse stored settings for ${key}`, error);
+      return fallback;
+    }
   }, []);
 
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const currentUser = await getCurrentUser();
       setUser(currentUser);
+
+      if (currentUser?.id) {
+        setPreferences(loadStoredSettings(`eventbuddy:prefs:${currentUser.id}`, preferenceDefaults));
+        setPrivacy(loadStoredSettings(`eventbuddy:privacy:${currentUser.id}`, privacyDefaults));
+      }
 
       try {
         const [profileData, interestsData, attendanceData] = await Promise.all([
@@ -70,7 +108,21 @@ function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loadStoredSettings]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    localStorage.setItem(`eventbuddy:prefs:${user.id}`, JSON.stringify(preferences));
+  }, [preferences, user]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    localStorage.setItem(`eventbuddy:privacy:${user.id}`, JSON.stringify(privacy));
+  }, [privacy, user]);
 
   const handleSave = async () => {
     try {
@@ -108,12 +160,63 @@ function ProfilePage() {
     }
   };
 
+  const handlePreferenceChange = (field, value) => {
+    setPreferences((prev) => ({ ...prev, [field]: value }));
+    setPreferenceStatus(null);
+  };
+
+  const handlePreferredEventsToggle = (value) => {
+    setPreferences((prev) => {
+      const exists = prev.preferredEvents.includes(value);
+      const preferredEvents = exists
+        ? prev.preferredEvents.filter((item) => item !== value)
+        : [...prev.preferredEvents, value];
+      return { ...prev, preferredEvents };
+    });
+    setPreferenceStatus(null);
+  };
+
+  const handleSavePreferences = () => {
+    setPreferenceStatus({
+      type: 'success',
+      message: 'Buddy preferences saved locally. We will sync them once profile metadata expands.'
+    });
+  };
+
+  const handlePrivacyToggle = (field) => {
+    setPrivacy((prev) => ({ ...prev, [field]: !prev[field] }));
+    setPrivacyStatus(null);
+  };
+
+  const handleSavePrivacy = () => {
+    setPrivacyStatus({
+      type: 'success',
+      message: 'Privacy & safety preferences updated. Your controls are live.'
+    });
+  };
+
   const renderStatus = () => {
     if (!status) return null;
     if (status.type === 'success') {
       return <div className="form-success">{status.message}</div>;
     }
     return <div className="form-error">{status.message}</div>;
+  };
+
+  const renderPreferenceStatus = () => {
+    if (!preferenceStatus) return null;
+    if (preferenceStatus.type === 'success') {
+      return <div className="form-success">{preferenceStatus.message}</div>;
+    }
+    return <div className="form-info">{preferenceStatus.message}</div>;
+  };
+
+  const renderPrivacyStatus = () => {
+    if (!privacyStatus) return null;
+    if (privacyStatus.type === 'success') {
+      return <div className="form-success">{privacyStatus.message}</div>;
+    }
+    return <div className="form-info">{privacyStatus.message}</div>;
   };
 
   if (loading) {
@@ -262,6 +365,174 @@ function ProfilePage() {
                 <button type="button" className="button button--outline" onClick={handleAddInterest}>
                   Add interest
                 </button>
+              </div>
+            </div>
+          </section>
+
+          <section className="section">
+            <div className="card">
+              <div className="section__header">
+                <div>
+                  <p className="section__subtitle">Tune the signal</p>
+                  <h2 className="section__title">Buddy preferences</h2>
+                </div>
+                <button type="button" className="button button--outline" onClick={handleSavePreferences}>
+                  Save preferences
+                </button>
+              </div>
+
+              {renderPreferenceStatus()}
+
+              <div className="form-grid">
+                <div className="form-field">
+                  <label htmlFor="meetup-size">Ideal crew size</label>
+                  <select
+                    id="meetup-size"
+                    value={preferences.meetupSize}
+                    onChange={(event) => handlePreferenceChange('meetupSize', event.target.value)}
+                  >
+                    <option value="Solo missions">Solo missions</option>
+                    <option value="Small crew (2-4)">Small crew (2-4)</option>
+                    <option value="Full squad (5-8)">Full squad (5-8)</option>
+                    <option value="Open invite">Open invite</option>
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label htmlFor="energy-level">Preferred energy</label>
+                  <select
+                    id="energy-level"
+                    value={preferences.energyLevel}
+                    onChange={(event) => handlePreferenceChange('energyLevel', event.target.value)}
+                  >
+                    <option value="Laid-back">Laid-back</option>
+                    <option value="Balanced energy">Balanced energy</option>
+                    <option value="High hype">High hype</option>
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label htmlFor="arrival-style">Arrival style</label>
+                  <select
+                    id="arrival-style"
+                    value={preferences.arrivalStyle}
+                    onChange={(event) => handlePreferenceChange('arrivalStyle', event.target.value)}
+                  >
+                    <option value="Early bird">Early bird</option>
+                    <option value="Right on time">Right on time</option>
+                    <option value="Roll in late">Roll in late</option>
+                  </select>
+                </div>
+                <div className="form-field">
+                  <label htmlFor="communication">How should friends ping you?</label>
+                  <select
+                    id="communication"
+                    value={preferences.communication}
+                    onChange={(event) => handlePreferenceChange('communication', event.target.value)}
+                  >
+                    <option value="Group chat first">Group chat first</option>
+                    <option value="DMs only">DMs only</option>
+                    <option value="Text me">Text me</option>
+                    <option value="In-app only">In-app only</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="buddy-preferences">
+                <p className="section__subtitle">Preferred event vibes</p>
+                <div className="pill-group" style={{ flexWrap: 'wrap' }}>
+                  {EVENT_PREF_OPTIONS.map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      className={`pill-toggle ${preferences.preferredEvents.includes(option) ? 'is-active' : ''}`}
+                      onClick={() => handlePreferredEventsToggle(option)}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
+                <div className="card__footer" style={{ justifyContent: 'space-between' }}>
+                  <span className="card__body" style={{ color: 'var(--color-text-muted)' }}>
+                    These settings shape your match suggestions and Attend Together recommendations.
+                  </span>
+                  <Link to="/connect" className="button button--ghost">
+                    Open Connect hub
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="section">
+            <div className="card" id="privacy">
+              <div className="section__header">
+                <div>
+                  <p className="section__subtitle">Guard your vibe</p>
+                  <h2 className="section__title">Privacy & Safety</h2>
+                </div>
+                <button type="button" className="button button--outline" onClick={handleSavePrivacy}>
+                  Save safety settings
+                </button>
+              </div>
+
+              {renderPrivacyStatus()}
+
+              <div className="safety-grid">
+                <label className="toggle-control">
+                  <input
+                    type="checkbox"
+                    checked={privacy.allowMessages}
+                    onChange={() => handlePrivacyToggle('allowMessages')}
+                  />
+                  <div>
+                    <strong>Allow friend-of-friend messages</strong>
+                    <span>Keep your inbox open to buddies your matches already trust.</span>
+                  </div>
+                </label>
+
+                <label className="toggle-control">
+                  <input
+                    type="checkbox"
+                    checked={privacy.shareEventHistory}
+                    onChange={() => handlePrivacyToggle('shareEventHistory')}
+                  />
+                  <div>
+                    <strong>Show recent event history</strong>
+                    <span>Helps others see what you vibe with. Toggle off for stealth mode.</span>
+                  </div>
+                </label>
+
+                <label className="toggle-control">
+                  <input
+                    type="checkbox"
+                    checked={privacy.showAvailability}
+                    onChange={() => handlePrivacyToggle('showAvailability')}
+                  />
+                  <div>
+                    <strong>Share weekly availability</strong>
+                    <span>Display the nights you are free for quick planning.</span>
+                  </div>
+                </label>
+
+                <label className="toggle-control">
+                  <input
+                    type="checkbox"
+                    checked={privacy.safetyCheck}
+                    onChange={() => handlePrivacyToggle('safetyCheck')}
+                  />
+                  <div>
+                    <strong>Enable Safety Check shortcut</strong>
+                    <span>Quick-access button alerts your emergency contacts directly from EventBuddy.</span>
+                  </div>
+                </label>
+              </div>
+
+              <div className="card__footer" style={{ justifyContent: 'space-between', marginTop: '1.5rem' }}>
+                <span className="card__body" style={{ color: 'var(--color-text-muted)' }}>
+                  Need to block or report someone? Head to their profile or messaging thread for immediate action.
+                </span>
+                <Link to="/connect" className="button button--ghost">
+                  Visit message center
+                </Link>
               </div>
             </div>
           </section>

@@ -7,7 +7,7 @@
 ## ✅ Database Layer Complete
 
 ### Schema & Tables
-- [x] `db/01_schema.sql` created (11 tables)
+- [x] `supabase/01_schema.sql` created (11 tables)
   - [x] profiles table with bio, interests, personality
   - [x] interests table (15 categories)
   - [x] profile_interests junction table
@@ -26,14 +26,14 @@
   - [x] Triggers for auto-updates
 
 ### Seed Data
-- [x] `db/02_seed.sql` created
+- [x] `supabase/02_seed.sql` created
   - [x] 15 common interests
   - [x] Sample profile templates
   - [x] Sample event templates
   - [x] Instructions for UUID population
 
 ### Security Policies
-- [x] `db/03_policies.sql` created (50+ policies)
+- [x] `supabase/03_policies.sql` created (50+ policies)
   - [x] RLS enabled on all 10 tables
   - [x] Public read policies (profiles, events)
   - [x] Authentication required for writes
@@ -170,7 +170,7 @@
 ## ✅ Frontend Services Complete
 
 ### Supabase Integration
-- [x] `src/services/supabase.js` created
+- [x] `client/src/services/supabase.js` created
   - [x] Supabase client setup
   - [x] signUp helper
   - [x] signIn helper
@@ -188,7 +188,7 @@
     - [x] subscribeToEvents
 
 ### API Service Wrappers
-- [x] `src/services/eventsApi.js` (10 functions)
+- [x] `client/src/services/eventsApi.js` (10 functions)
   - [x] getAllEvents(filters)
   - [x] getEventById(id)
   - [x] createEvent(data)
@@ -200,7 +200,7 @@
   - [x] rateEvent(id, rating, comment)
   - [x] getEventRatings(id)
 
-- [x] `src/services/profilesApi.js` (10 functions)
+- [x] `client/src/services/profilesApi.js` (10 functions)
   - [x] getProfileById(id)
   - [x] getMyProfile()
   - [x] createProfile(data)
@@ -213,7 +213,7 @@
   - [x] unblockUser(id)
   - [x] reportUser(id, reason, desc)
 
-- [x] `src/services/connectionsApi.js` (9 functions)
+- [x] `client/src/services/connectionsApi.js` (9 functions)
   - [x] getMyConnections(status)
   - [x] sendConnectionRequest(receiverId)
   - [x] updateConnection(id, status)
@@ -224,7 +224,7 @@
   - [x] getPendingSent()
   - [x] getMatchSuggestions()
 
-- [x] `src/services/messagesApi.js` (8 functions)
+- [x] `client/src/services/messagesApi.js` (8 functions)
   - [x] getMyMessages(with, limit, offset)
   - [x] getConversations()
   - [x] getConversationWith(userId)
@@ -234,7 +234,7 @@
   - [x] getUnreadCount()
 
 ### Utilities
-- [x] `src/utils/helpers.js` (25+ functions)
+- [x] `client/src/utils/helpers.js` (25+ functions)
   - [x] Date formatting (formatDate, formatTime, formatDateTime)
   - [x] Relative time (getRelativeTime)
   - [x] Text utilities (truncate)

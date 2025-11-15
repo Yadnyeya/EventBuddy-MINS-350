@@ -39,8 +39,8 @@ Create a `.env` file in the **project root** with:
 
 ```env
 VITE_SUPABASE_URL=https://your-project-id.supabase.co
-VITE_SUPABASE_ANON_KEY=your_anon_key_here
-SUPABASE_SERVICE_KEY=your_service_role_key_here
+VITE_SUPABASE_PUBLISHABLE_KEY=your_publishable_key_here
+SUPABASE_SECRET_KEY=your_service_role_key_here
 API_PORT=3001
 VITE_APP_URL=http://localhost:5173
 ```

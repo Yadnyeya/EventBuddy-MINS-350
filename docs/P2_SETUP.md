@@ -311,7 +311,7 @@ content, is_read
 **blocks** - User blocking for safety
 **reports** - Report abusive users/content
 
-Full schema: `db/01_schema.sql`
+Full schema: `supabase/01_schema.sql`
 
 ## Project Structure
 
@@ -365,7 +365,7 @@ Event Buddy App/
 
 ### Issue: Database queries fail
 **Solution:**
-1. Check RLS policies are set up (`db/03_policies.sql`)
+1. Check RLS policies are set up (`supabase/03_policies.sql`)
 2. Verify user is authenticated
 3. Check Supabase logs in dashboard: Logs > Database
 
@@ -423,8 +423,8 @@ Event Buddy App/
    - Test with cURL or Postman
 
 3. **Update frontend:**
-   - Create service in `src/services/`
-   - Create page/component in `src/pages/` or `src/components/`
+   - Create service in `client/src/services/`
+   - Create page/component in `client/src/pages/` or `client/src/components/`
    - Connect to API
 
 4. **Test end-to-end**

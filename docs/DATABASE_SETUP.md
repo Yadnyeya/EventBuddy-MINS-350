@@ -14,7 +14,7 @@ Since we cannot run SQL commands directly from the terminal to Supabase, follow 
 ### Step 2: Run Schema File
 
 1. In the SQL Editor, click **"New query"**
-2. Open the file: `db/00_spec_schema.sql`
+2. Open the file: `supabase/00_spec_schema.sql`
 3. Copy the entire contents
 4. Paste into the Supabase SQL Editor
 5. Click **"Run"** (or press Cmd+Enter)
@@ -29,7 +29,7 @@ This creates 4 tables:
 ### Step 3: Run Seed Data (Optional)
 
 1. Click **"New query"** again
-2. Open the file: `db/00_spec_seed.sql`
+2. Open the file: `supabase/00_spec_seed.sql`
 3. Copy the entire contents
 4. Paste into the Supabase SQL Editor
 5. Click **"Run"**
@@ -44,7 +44,7 @@ This adds sample data for testing.
 ### Step 4: Run Security Policies
 
 1. Click **"New query"** again
-2. Open the file: `db/00_spec_policies.sql`
+2. Open the file: `supabase/00_spec_policies.sql`
 3. Copy the entire contents
 4. Paste into the Supabase SQL Editor
 5. Click **"Run"**

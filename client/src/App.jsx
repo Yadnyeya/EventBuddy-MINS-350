@@ -10,7 +10,11 @@ import SignupPage from './pages/SignupPage';
 import ProfileSetupPage from './pages/ProfileSetupPage';
 import HomePage from './pages/HomePage';
 import EventsPage from './pages/EventsPage';
+import EventCreatePage from './pages/EventCreatePage';
 import EventDetailPage from './pages/EventDetailPage';
+import NetworkPage from './pages/NetworkPage';
+import AttendTogetherPage from './pages/AttendTogetherPage';
+import ConnectPage from './pages/ConnectPage';
 import ProfilePage from './pages/ProfilePage';
 import ShareExperiencePage from './pages/ShareExperiencePage';
 
@@ -80,10 +84,42 @@ function App() {
             }
           />
           <Route
+            path="/events/create"
+            element={
+              <ProtectedRoute>
+                <EventCreatePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/events/:id"
             element={
               <ProtectedRoute>
                 <EventDetailPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/attend"
+            element={
+              <ProtectedRoute>
+                <AttendTogetherPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/connect"
+            element={
+              <ProtectedRoute>
+                <ConnectPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/network"
+            element={
+              <ProtectedRoute>
+                <NetworkPage />
               </ProtectedRoute>
             }
           />

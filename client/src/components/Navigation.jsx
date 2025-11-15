@@ -5,6 +5,9 @@ import { signOut } from '../services/supabase';
 const NAV_LINKS = [
   { label: 'Home', path: '/' },
   { label: 'Events', path: '/events' },
+  { label: 'Attend', path: '/attend' },
+  { label: 'Network', path: '/network' },
+  { label: 'Connect', path: '/connect' },
   { label: 'Profile', path: '/profile' },
   { label: 'Share', path: '/share' }
 ];

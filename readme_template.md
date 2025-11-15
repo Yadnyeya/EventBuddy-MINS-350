@@ -76,23 +76,20 @@ EventBuddy/
 │   ├── routes/               # API route definitions
 │   ├── controllers/          # Business logic
 │   └── package.json          # API dependencies
-├── client/                   # Frontend React application
-│   ├── src/                  # Source code
-│   │   ├── components/       # Reusable UI components
-│   │   ├── pages/            # Page components
-│   │   ├── services/         # API service layer
-│   │   └── utils/            # Helper functions
-│   ├── public/               # Static assets
-│   ├── index.html            # HTML entry point
-│   ├── vite.config.js        # Vite configuration
-│   └── package.json          # Frontend dependencies
-├── supabase/                 # Database migrations
-│   ├── 00_spec_schema.sql    # Specification 2 schema
-│   ├── 00_spec_seed.sql      # Specification 2 seed data
-│   ├── 00_spec_policies.sql  # Specification 2 RLS policies
-│   ├── 01_schema.sql         # Extended schema
-│   ├── 02_seed.sql           # Extended seed data
-│   └── 03_policies.sql       # Extended RLS policies
+├── db/                       # Database migrations
+│   ├── 01_schema.sql         # Table definitions
+│   ├── 02_seed.sql           # Sample data
+│   └── 03_policies.sql       # RLS policies
+├── src/                      # Frontend source code
+│   ├── components/           # Reusable React components
+│   ├── pages/                # Page components
+│   ├── services/             # API service layer
+│   │   ├── supabase.js       # Supabase client & auth
+│   │   ├── eventsApi.js      # Events API wrapper
+│   │   ├── profilesApi.js    # Profiles API wrapper
+│   │   ├── connectionsApi.js # Connections API wrapper
+│   │   └── messagesApi.js    # Messages API wrapper
+│   └── utils/                # Utility functions
 ├── tests/                    # Testing
 │   └── smoke.sh             # API smoke tests
 ├── docs/                     # Documentation
@@ -101,7 +98,7 @@ EventBuddy/
 │   ├── P2_SETUP.md          # Prototype 2 setup guide
 │   └── WORKSPACE_RULES.md   # Development guidelines
 ├── .env.example             # Environment template
-└── readme_template.md       # README template
+└── package.json             # Frontend dependencies
 ```
 
 ## API Endpoints
@@ -167,7 +164,7 @@ EventBuddy/
 2. **Create Supabase project**
    - Go to https://supabase.com
    - Create new project
-   - Run database migrations from `supabase/` folder
+   - Run database migrations from `db/` folder
 
 3. **Configure environment**
    ```bash
@@ -181,13 +178,13 @@ EventBuddy/
    cd api && npm run dev
    
    # Terminal 2: Frontend
-   cd client && npm run dev
+   npm run dev
    ```
 
 5. **Verify**
    - Frontend: http://localhost:5173
    - API: http://localhost:3001/health
-   - Tests: `./tests/smoke.sh`
+   - Tests: `cd tests && ./smoke.sh`
 
 **📖 Full setup guide:** See `docs/P2_SETUP.md` for detailed instructions
 
