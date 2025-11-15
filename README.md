@@ -1,43 +1,29 @@
 # EventBuddy
 
-**A student networking platform for event discovery and buddy matching**
+**A student networking platform for event discovery and connections**
 
 EventBuddy helps students overcome social barriers by facilitating event discovery and connections with like-minded peers. Designed with introverts in mind, it provides a safe, inclusive space for students to find events, make friends, and build meaningful campus connections.
 
-## Current Status: **Prototype 2 - Backend & API Complete** ✅
+## Current Status: **Prototype 2 - Full Stack Complete** ✅
 
 ### What's Working:
-- ✅ Complete database schema (11 tables)
-- ✅ Row Level Security policies
-- ✅ Express API server with 40+ endpoints
-- ✅ Supabase integration
-- ✅ Smart buddy matching algorithm
-- ✅ Event management CRUD operations
-- ✅ Messaging system
-- ✅ Safety features (block/report)
-- ✅ API smoke tests
-- ✅ Frontend service layer
-
-### Next Steps:
-- 🔨 Build frontend pages and components
-- 🔨 Implement authentication UI
-- 🔨 Create event browsing interface
-- 🔨 Design buddy matching flow
+- ✅ Full React frontend with authentication and event browsing
+- ✅ Express API server with REST endpoints
+- ✅ Supabase database with RLS policies
+- ✅ Student profiles and event management
+- ✅ Check-in/attendance tracking system
+- ✅ Search and filter functionality
+- ✅ Responsive design with Tailwind CSS
+- ✅ API smoke tests passing
 
 ## Key Features
 
-### 🎯 For Students
-- **Event Discovery**: Find study groups, social events, sports activities, and more
-- **Buddy Matching**: AI-powered matching based on interests, personality, and events
-- **Safe Connections**: Built-in blocking and reporting for user safety
-- **Direct Messaging**: Chat with matched buddies
-- **Event Reminders**: Save events and get notified
-
-### 🎨 Design Philosophy
-- **Introvert-Friendly**: Low-pressure connection requests
-- **Smart Matching**: Interest, personality, and major-based algorithms
-- **Safety First**: Block, report, and connection controls
-- **Mobile-First**: Responsive design for on-the-go students
+- **Event Discovery**: Browse campus events, club meetings, and fairs
+- **Event Check-In**: Track attendance and share experiences
+- **Student Search**: Find students by interests and year
+- **Profile Management**: Create and customize student profiles  
+- **Interest Matching**: Connect based on shared interests
+- **Responsive Design**: Works on desktop and mobile
 
 ## Technology Stack
 
@@ -50,21 +36,17 @@ EventBuddy helps students overcome social barriers by facilitating event discove
 ### Backend & Database
 - **Supabase**: PostgreSQL database with Row Level Security
   - User authentication with email/password
-  - Real-time subscriptions for messages and notifications
-  - Database schema with 11 tables
-  - Auto-scaling and backups
-- **Express.js**: Local development API server
-  - RESTful endpoints for all features
+  - Database schema (student, events, interests, attend tables)
+  - Real-time subscriptions
+- **Express.js**: RESTful API server
   - JWT authentication middleware
-  - CORS and rate limiting
+  - CORS and security headers
   - Input validation and error handling
+  - Smoke tests for endpoint verification
 
-### Deployment (Prototype 3 - Upcoming)
-- **AWS Amplify**: Frontend hosting with CI/CD
-- **AWS Lambda**: Serverless API functions
-- **API Gateway**: Managed API endpoints
-- **GitHub Actions**: Automated testing and deployment
-- **Serverless Framework**: Infrastructure as code
+### Deployment
+- **Local Development**: Vite dev server + Express API
+- **Future (Prototype 3)**: AWS Amplify + Lambda
 
 ## Project Structure
 
@@ -98,52 +80,36 @@ EventBuddy/
 ├── docs/                     # Documentation
 │   ├── PRD.md               # Product requirements
 │   ├── TASK_LIST.md         # Development roadmap
-│   ├── P2_SETUP.md          # Prototype 2 setup guide
 │   └── WORKSPACE_RULES.md   # Development guidelines
+├── .env                      # Environment variables (root)
 ├── .env.example             # Environment template
 └── readme_template.md       # README template
 ```
 
 ## API Endpoints
 
+### Students
+- `GET /api/students` - Get all verified students
+- `GET /api/students/search?interest={name}` - Search by interest
+
 ### Events
-- `GET /api/events` - Browse events with filters
-- `POST /api/events` - Create event (auth required)
+- `GET /api/events` - Browse all events
+- `GET /api/events?event_type={type}` - Filter by type (Event, Club Meeting, Fair)
 - `GET /api/events/:id` - Get event details
-- `POST /api/events/:id/save` - Save event (auth required)
-- `POST /api/events/:id/ratings` - Rate event (auth required)
+- `POST /api/events` - Create event (auth required)
 
-### Profiles
-- `GET /api/profiles` - Search profiles
-- `POST /api/profiles` - Create profile (auth required)
-- `PUT /api/profiles/me` - Update profile (auth required)
-- `POST /api/profiles/:id/block` - Block user (auth required)
+### Attendance
+- `POST /api/attend` - Check in to event (auth required)
 
-### Connections (Buddy Matching)
-- `GET /api/connections/matches/suggestions` - Get match suggestions (auth required)
-- `POST /api/connections` - Send connection request (auth required)
-- `PUT /api/connections/:id` - Accept/reject request (auth required)
-
-### Messages
-- `GET /api/messages/conversations` - Get conversations (auth required)
-- `POST /api/messages` - Send message (auth required)
-- `GET /api/messages/unread/count` - Unread count (auth required)
-
-**📖 Full API docs:** See `api/README.md`
+**📖 Full API docs:** See `api/README.md` and `api/openapi.yaml`
 
 ## Database Schema
 
-**11 Tables:**
-- `profiles` - User profiles with bio, interests, personality
-- `interests` - Interest categories (study, sports, hobbies)
-- `profile_interests` - User interest associations
-- `events` - Campus events (study groups, social, sports)
-- `event_saves` - Saved events (reminders)
-- `event_ratings` - Event feedback (1-5 stars)
-- `connections` - Buddy matching relationships
-- `messages` - Direct messaging between connected users
-- `blocks` - User blocking for safety
-- `reports` - Report abusive users/content
+**4 Core Tables (Specification 2):**
+- `student` - Student accounts with email, year, verification status
+- `interest` - Student interests for matching
+- `events` - Campus events with type, location, date/time
+- `attend` - Event attendance tracking with check-in/out, ratings, experiences
 
 **Security:** Row Level Security (RLS) policies on all tables
 
@@ -154,28 +120,37 @@ EventBuddy/
 - Supabase account
 - Git
 
-### Setup (5 minutes)
+### Setup
 
 1. **Clone and install**
    ```bash
    git clone <repo-url>
    cd "Event Buddy App"
-   npm install
    cd api && npm install && cd ..
+   cd client && npm install && cd ..
    ```
 
 2. **Create Supabase project**
-   - Go to https://supabase.com
+   - Go to https://supabase.com/dashboard
    - Create new project
-   - Run database migrations from `supabase/` folder
+   - In SQL Editor, run these files in order:
+     - `supabase/00_spec_schema.sql`
+     - `supabase/00_spec_seed.sql`
+     - `supabase/00_spec_policies.sql`
 
 3. **Configure environment**
    ```bash
    cp .env.example .env
-   # Edit .env with your Supabase credentials
+   # Edit .env with your Supabase credentials:
+   # - VITE_SUPABASE_URL
+   # - VITE_SUPABASE_PUBLISHABLE_KEY
+   # - SUPABASE_SECRET_KEY
+   
+   # Copy .env to client folder
+   cp .env client/.env
    ```
 
-4. **Start servers**
+4. **Start servers (use 2 terminals)**
    ```bash
    # Terminal 1: API server
    cd api && npm run dev
@@ -184,12 +159,10 @@ EventBuddy/
    cd client && npm run dev
    ```
 
-5. **Verify**
-   - Frontend: http://localhost:5173
+5. **Access the app**
+   - Frontend: http://localhost:3000
    - API: http://localhost:3001/health
    - Tests: `./tests/smoke.sh`
-
-**📖 Full setup guide:** See `docs/P2_SETUP.md` for detailed instructions
 
 ## Development Workflow
 
@@ -203,35 +176,19 @@ For detailed development guidelines, see `WORKSPACE_RULES.md`.
 
 ## Development Roadmap
 
-### ✅ Prototype 1 - Foundation (Complete)
-- React project structure
-- Tailwind CSS setup
-- Documentation suite
-- GitHub repository
+### ✅ Prototype 2 - Complete
+- Database schema (student, interest, events, attend)
+- Express API server with smoke tests
+- React frontend with all pages
+- Authentication (login, signup, profile setup)
+- Event browsing, creation, and check-in
+- Student search by interest
+- Responsive design with Tailwind CSS
 
-### ✅ Prototype 2 - Backend & API (Complete)
-- Database schema with 11 tables
-- Row Level Security policies
-- Express API server (40+ endpoints)
-- Supabase integration
-- Smart matching algorithm
-- API smoke tests
-- Frontend service layer
-
-### 🔨 Prototype 2 - Frontend (In Progress)
-- Authentication pages (login, signup, profile setup)
-- Event browsing and search
-- Event creation flow
-- Buddy matching interface
-- Messaging UI
-- Profile management
-
-### 📋 Prototype 3 - AWS Deployment (Planned)
-- AWS Amplify frontend hosting
-- AWS Lambda API functions
-- API Gateway setup
-- CI/CD with GitHub Actions
-- Production environment
+### 📋 Prototype 3 - Planned
+- AWS Amplify deployment
+- CI/CD pipeline
+- Production environment setup
 
 **📖 Full roadmap:** See `docs/TASK_LIST.md`
 
@@ -253,31 +210,31 @@ Tests verify:
 
 ## Documentation
 
-- **`docs/PRD.md`** - Product requirements and architecture
-- **`docs/P2_SETUP.md`** - Prototype 2 setup guide (start here!)
-- **`docs/TASK_LIST.md`** - Development tasks by prototype
-- **`docs/WORKSPACE_RULES.md`** - Coding standards
+- **`docs/PRD.md`** - Product requirements document
+- **`docs/TASK_LIST.md`** - Development tasks and roadmap
+- **`docs/WORKSPACE_RULES.md`** - Coding standards and guidelines
 - **`api/README.md`** - API documentation
+- **`api/openapi.yaml`** - OpenAPI specification
 
 ## Contributing
 
-This is a school project following specific guidelines:
+This is a student project. Development guidelines:
 1. Read `docs/WORKSPACE_RULES.md` for standards
 2. Follow conventional commit messages
-3. Test with smoke tests before committing
-4. Use functional React components
+3. Test with `./tests/smoke.sh` before committing
+4. Use functional React components with hooks
 5. Follow Tailwind CSS for styling
+6. Keep API and frontend in sync
 
-## Technologies Used
+## Technologies
 
 **Frontend:** React 18, Vite, Tailwind CSS, React Router  
 **Backend:** Node.js, Express.js, Supabase Client  
-**Database:** PostgreSQL (via Supabase)  
-**Auth:** Supabase Auth (JWT)  
-**Security:** Helmet, CORS, Rate Limiting, RLS  
+**Database:** PostgreSQL (Supabase)  
+**Auth:** Supabase Auth with JWT  
+**Security:** Helmet, CORS, Rate Limiting, RLS Policies  
 **Testing:** Bash smoke tests  
-**Deployment:** AWS Amplify + Lambda (Prototype 3)
 
 ## License
 
-This is a student project for educational purposes.
+Educational project for BSIS 350 - Fall 2025
