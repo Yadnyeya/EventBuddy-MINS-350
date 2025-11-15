@@ -3,16 +3,24 @@ node_modules
 api/node_modules
 client/node_modules
 
-# Environment variables
+# Environment variables (DO NOT COMMIT)
 .env
 .env.local
 .env.production
+client/.env
+api/.env
 
 # Build outputs
 dist
 build
 client/dist
 client/build
+api/dist
+api/build
+
+# Vite cache (generated during development)
+.vite
+client/.vite
 
 # Logs
 *.log
@@ -41,3 +49,6 @@ coverage
 # Temporary files
 *.tmp
 *.temp
+
+# OS files
+Thumbs.db
