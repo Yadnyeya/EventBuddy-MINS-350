@@ -126,7 +126,8 @@ export const getAccessToken = async () => {
 export const apiCall = async (endpoint, options = {}) => {
   const token = await getAccessToken();
   
-  const apiUrl = import.meta.env.VITE_APP_URL?.replace('5173', '3001') || 'http://localhost:3001';
+  // Use VITE_API_BASE_URL for production, fallback to localhost for development
+  const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
   
   const response = await fetch(`${apiUrl}${endpoint}`, {
     ...options,
