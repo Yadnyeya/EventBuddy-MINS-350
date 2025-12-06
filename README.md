@@ -237,4 +237,4 @@ This is a student project. Development guidelines:
 
 ## License
 
-Educational project for BSIS 350 - Fall 2025
+Educational project for BSIS 350 - Fall 2025# Deployed Fri Dec  5 20:31:52 PST 2025
