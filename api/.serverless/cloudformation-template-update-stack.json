@@ -108,7 +108,7 @@
       "Properties": {
         "Code": {
           "S3Bucket": "serverless-framework-deployments-us-east-1-6417a2d4-98db",
-          "S3Key": "serverless/eventbuddy-api/prod/1764978115662-2025-12-05T23:41:55.662Z/eventbuddy-api.zip"
+          "S3Key": "serverless/eventbuddy-api/prod/1764999529349-2025-12-06T05:38:49.349Z/eventbuddy-api.zip"
         },
         "Handler": "handler-simple.handler",
         "Runtime": "nodejs18.x",
@@ -132,14 +132,14 @@
         "ApiLogGroup"
       ]
     },
-    "ApiLambdaVersion1vxMcz9WwziU7Q2Hid5EXPFB5coRDmUQLpt9KZVu40": {
+    "ApiLambdaVersionifdPE8X5pHn96ZVxd9vAMsFEtIKN3EtDG4nwL2yREHs": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "ApiLambdaFunction"
         },
-        "CodeSha256": "9iNIoMAtlbQEttk4ejBXBz2o3oN7dLr4ScmARTXKgHk="
+        "CodeSha256": "F4ocgfZycpkDa0TkxclUIKLxAKgm7tqYSXiEBSlWyU0="
       }
     },
     "ApiGatewayRestApi": {
@@ -357,7 +357,7 @@
         "ApiLambdaPermissionApiGateway"
       ]
     },
-    "ApiGatewayDeployment1764978109546": {
+    "ApiGatewayDeployment1764999522597": {
       "Type": "AWS::ApiGateway::Deployment",
       "Properties": {
         "RestApiId": {
@@ -420,7 +420,7 @@
     "ApiLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "ApiLambdaVersion1vxMcz9WwziU7Q2Hid5EXPFB5coRDmUQLpt9KZVu40"
+        "Ref": "ApiLambdaVersionifdPE8X5pHn96ZVxd9vAMsFEtIKN3EtDG4nwL2yREHs"
       },
       "Export": {
         "Name": "sls-eventbuddy-api-prod-ApiLambdaFunctionQualifiedArn"

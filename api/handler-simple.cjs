@@ -43,7 +43,7 @@ app.get('/api/events', async (req, res) => {
       .limit(20);
     
     if (error) throw error;
-    res.json(data);
+    res.json({ events: data });  // Wrap in object for frontend
   } catch (error) {
     console.error('Events error:', error);
     res.status(500).json({ error: error.message });
@@ -69,6 +69,128 @@ app.get('/api/students', async (req, res) => {
     res.json(data);
   } catch (error) {
     console.error('Students error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get my profile
+app.get('/api/students/me/profile', async (req, res) => {
+  if (!supabaseAdmin) {
+    return res.status(503).json({ error: 'Supabase not initialized' });
+  }
+  
+  try {
+    // Get user ID from Supabase auth header
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    // Extract JWT token and get user
+    const token = authHeader.replace('Bearer ', '');
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY);
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    
+    if (userError || !user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    
+    // Get profile
+    const { data, error } = await supabaseAdmin
+      .from('student')
+      .select('*')
+      .eq('student_id', user.id)
+      .single();
+    
+    if (error && error.code !== 'PGRST116') throw error;
+    res.json(data || null);
+  } catch (error) {
+    console.error('Get profile error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create/update my profile
+app.post('/api/students/me/profile', async (req, res) => {
+  if (!supabaseAdmin) {
+    return res.status(503).json({ error: 'Supabase not initialized' });
+  }
+  
+  try {
+    // Get user ID from Supabase auth header
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    const token = authHeader.replace('Bearer ', '');
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY);
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    
+    if (userError || !user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    
+    // Upsert profile
+    const { data, error } = await supabaseAdmin
+      .from('student')
+      .upsert({
+        student_id: user.id,
+        email: req.body.email || user.email,
+        year: req.body.year,
+        is_verified: req.body.is_verified !== undefined ? req.body.is_verified : true
+      }, {
+        onConflict: 'student_id'
+      })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    console.error('Upsert profile error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Add interest
+app.post('/api/students/me/interests', async (req, res) => {
+  if (!supabaseAdmin) {
+    return res.status(503).json({ error: 'Supabase not initialized' });
+  }
+  
+  try {
+    // Get user ID
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    
+    const token = authHeader.replace('Bearer ', '');
+    const { createClient } = require('@supabase/supabase-js');
+    const supabase = createClient(process.env.VITE_SUPABASE_URL, process.env.VITE_SUPABASE_ANON_KEY);
+    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    
+    if (userError || !user) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    
+    // Add interest
+    const { data, error } = await supabaseAdmin
+      .from('interest')
+      .insert({
+        student_id: user.id,
+        interest_name: req.body.interest || req.body.interest_name
+      })
+      .select()
+      .single();
+    
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    console.error('Add interest error:', error);
     res.status(500).json({ error: error.message });
   }
 });

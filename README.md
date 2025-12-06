@@ -4,7 +4,13 @@
 
 EventBuddy helps students overcome social barriers by facilitating event discovery and connections with like-minded peers. Designed with introverts in mind, it provides a safe, inclusive space for students to find events, make friends, and build meaningful campus connections.
 
-## Current Status: **Prototype 2 - Full Stack Complete** ✅
+## 🚀 Live Application
+
+**Frontend**: [https://main.d29j968x1tbi08.amplifyapp.com/](https://main.d29j968x1tbi08.amplifyapp.com/)  
+**Backend API**: [https://xxvhcqflyg.execute-api.us-east-1.amazonaws.com/prod](https://xxvhcqflyg.execute-api.us-east-1.amazonaws.com/prod)  
+**Health Check**: [API Health](https://xxvhcqflyg.execute-api.us-east-1.amazonaws.com/prod/health)
+
+## Current Status: **Prototype 3 - Production Deployed** ✅
 
 ### What's Working:
 - ✅ Full React frontend with authentication and event browsing
@@ -14,7 +20,10 @@ EventBuddy helps students overcome social barriers by facilitating event discove
 - ✅ Check-in/attendance tracking system
 - ✅ Search and filter functionality
 - ✅ Responsive design with Tailwind CSS
-- ✅ API smoke tests passing
+- ✅ **AWS Amplify frontend hosting**
+- ✅ **AWS Lambda + API Gateway backend**
+- ✅ **CloudWatch monitoring and error alarms**
+- ✅ **Production-ready security and secrets management**
 
 ## Key Features
 
@@ -45,8 +54,12 @@ EventBuddy helps students overcome social barriers by facilitating event discove
   - Smoke tests for endpoint verification
 
 ### Deployment
+- **Production**: AWS Amplify (frontend) + AWS Lambda (backend)
+  - Frontend auto-deploys on git push to main
+  - Backend uses Serverless Framework
+  - Secrets managed in AWS Secrets Manager
+  - CloudWatch monitoring with error alarms
 - **Local Development**: Vite dev server + Express API
-- **Future (Prototype 3)**: AWS Amplify + Lambda
 
 ## Project Structure
 
@@ -185,10 +198,20 @@ For detailed development guidelines, see `WORKSPACE_RULES.md`.
 - Student search by interest
 - Responsive design with Tailwind CSS
 
-### 📋 Prototype 3 - Planned
-- AWS Amplify deployment
-- CI/CD pipeline
-- Production environment setup
+### ✅ Prototype 3 - Complete
+- ✅ AWS Amplify frontend hosting with auto-deploy
+- ✅ AWS Lambda + API Gateway backend
+- ✅ Serverless Framework deployment automation
+- ✅ AWS Secrets Manager integration
+- ✅ CloudWatch monitoring and error alarms
+- ✅ Production security hardening
+- ✅ Complete deployment documentation
+
+### 📋 Future Enhancements
+- Push notifications for new events
+- In-app messaging between students
+- Event recommendations based on interests
+- Analytics dashboard for event organizers
 
 **📖 Full roadmap:** See `docs/TASK_LIST.md`
 
@@ -213,8 +236,42 @@ Tests verify:
 - **`docs/PRD.md`** - Product requirements document
 - **`docs/TASK_LIST.md`** - Development tasks and roadmap
 - **`docs/WORKSPACE_RULES.md`** - Coding standards and guidelines
+- **`docs/DEPLOYMENT.md`** - Production deployment guide
 - **`api/README.md`** - API documentation
 - **`api/openapi.yaml`** - OpenAPI specification
+
+## Troubleshooting
+
+### Common Issues
+
+**Frontend shows "Failed to fetch"**
+- Check API Gateway is responding: visit the health check URL
+- Verify CORS is configured for your domain in `api/handler-simple.cjs`
+- Check CloudWatch logs: `aws logs tail /aws/lambda/eventbuddy-api-prod-api --follow`
+
+**"Internal server error" on API calls**
+- Check CloudWatch logs for Lambda errors
+- Verify Supabase credentials in AWS Secrets Manager
+- Test direct Supabase connection from Supabase dashboard
+
+**Authentication not working**
+- Verify Supabase Site URL includes your Amplify domain
+- Check Redirect URLs are configured in Supabase dashboard
+- Clear browser cache and local storage
+
+**Lambda cold starts taking long**
+- First request after idle may take 5-10 seconds
+- Consider provisioned concurrency for production
+- Check function memory allocation (current: 512MB)
+
+### Getting Help
+
+1. Check `docs/DEPLOYMENT.md` for detailed deployment procedures
+2. Review CloudWatch logs for error details
+3. Test endpoints with curl to isolate frontend vs backend issues
+4. Verify Supabase RLS policies aren't blocking requests
+
+**Support**: For project-specific questions, contact the development team
 
 ## Contributing
 
@@ -226,15 +283,45 @@ This is a student project. Development guidelines:
 5. Follow Tailwind CSS for styling
 6. Keep API and frontend in sync
 
+### Deployment Process
+
+**Frontend (Auto-deploy)**
+- Push to main branch triggers Amplify build
+- Build takes ~2-3 minutes
+- Check Amplify console for build status
+
+**Backend (Manual deploy)**
+```bash
+cd api
+npm run deploy  # Deploy to AWS Lambda
+```
+
+See `docs/DEPLOYMENT.md` for complete deployment procedures and rollback instructions.
+
 ## Technologies
 
 **Frontend:** React 18, Vite, Tailwind CSS, React Router  
 **Backend:** Node.js, Express.js, Supabase Client  
 **Database:** PostgreSQL (Supabase)  
 **Auth:** Supabase Auth with JWT  
-**Security:** Helmet, CORS, Rate Limiting, RLS Policies  
+**Hosting:** AWS Amplify (Frontend), AWS Lambda + API Gateway (Backend)  
+**Monitoring:** AWS CloudWatch with error alarms  
+**Security:** Helmet, CORS, Rate Limiting, RLS Policies, AWS Secrets Manager  
 **Testing:** Bash smoke tests  
+
+## Known Limitations
+
+- Email confirmation disabled (requires SMTP setup for production)
+- Cold starts on Lambda may cause 5-10 second delays on first request
+- Profile picture uploads not yet implemented
+- Direct messaging between students planned for future release
+- Event capacity limits not enforced
 
 ## License
 
-Educational project for BSIS 350 - Fall 2025# Deployed Fri Dec  5 20:31:52 PST 2025
+Educational project for BSIS 350 - Fall 2025
+
+---
+
+**Last Updated:** December 2025  
+**Version:** Prototype 3 (Production Deployed)
