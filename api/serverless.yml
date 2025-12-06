@@ -1,0 +1,83 @@
+service: eventbuddy-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: prod
+  memorySize: 512
+  timeout: 30
+  
+  # IAM permissions for Lambda function
+  iam:
+    role:
+      statements:
+        # Allow Lambda to read from Secrets Manager
+        - Effect: Allow
+          Action:
+            - secretsmanager:GetSecretValue
+            - secretsmanager:DescribeSecret
+          Resource:
+            - arn:aws:secretsmanager:us-east-1:601535874782:secret:eventbuddy/api/prod-*
+        
+        # Allow Lambda to write logs
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: arn:aws:logs:*:*:*
+
+  # Environment variables (non-sensitive)
+  environment:
+    NODE_ENV: production
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+
+functions:
+  api:
+    handler: handler-simple.handler
+    events:
+      - http:
+          path: /
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+      - http:
+          path: /{proxy+}
+          method: ANY
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Amz-User-Agent
+            allowCredentials: false
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3001
+    host: 0.0.0.0
+
+# Package configuration
+package:
+  patterns:
+    - '!.git/**'
+    - '!.env'
+    - '!.env.*'
+    - '!test/**'
+    - '!tests/**'
+    - '!*.md'
